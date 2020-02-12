@@ -1,5 +1,6 @@
 package com.manolovn.sample;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.manolovn.sample.color.BrewerColorGenerator;
 import com.manolovn.sample.exporter.ImageExporter;
 import com.manolovn.sample.point.PointGeneratorFactory;
 import com.manolovn.sample.point.PointGeneratorFactory.Type;
+import com.manolovn.sample.util.PermissionRequester;
 import com.manolovn.trianglify.TrianglifyView;
 
 import java.io.IOException;
@@ -24,6 +26,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class SampleActivity extends AppCompatActivity {
 
@@ -59,7 +63,17 @@ public class SampleActivity extends AppCompatActivity {
 
     @OnClick(R.id.saveToGalleryButton)
     void saveToGallery() {
-        exportViewToImage();
+        new PermissionRequester(this, Manifest.permission.WRITE_EXTERNAL_STORAGE).request(new Function1<Boolean, Unit>() {
+            @Override
+            public Unit invoke(Boolean granted) {
+                if (granted) {
+                    exportViewToImage();
+                } else {
+                    Toast.makeText(SampleActivity.this, R.string.permission_not_granted_files, Toast.LENGTH_SHORT).show();
+                }
+                return null;
+            }
+        });
     }
 
     @OnClick(R.id.toggleFullscreen)
